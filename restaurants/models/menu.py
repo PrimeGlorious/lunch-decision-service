@@ -1,4 +1,4 @@
-from django.contrib.postgres.fields import ArrayField
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 
 from restaurants.models import Restaurant
@@ -6,6 +6,17 @@ from restaurants.models.dish import Dish
 
 
 class Menu(models.Model):
+    name = models.CharField(max_length=100)
+    restaurant = models.ForeignKey(
+        Restaurant, on_delete=models.CASCADE, related_name="menus"
+    )
+    dishes = models.ManyToManyField(Dish, related_name="menus")
+
+    def __str__(self):
+        return self.name
+
+
+class MenuDay(models.Model):
     WEEKDAYS = (
         (1, "Monday"),
         (2, "Tuesday"),
@@ -16,16 +27,14 @@ class Menu(models.Model):
         (7, "Sunday"),
     )
 
-    restaurant = models.ForeignKey(
-        Restaurant, on_delete=models.CASCADE, related_name="menus"
-    )
-    dishes = models.ManyToManyField(Dish, related_name="menus")
-    week_days = ArrayField(
-        models.IntegerField(choices=WEEKDAYS),
-        default=list,
-        help_text="List of days this menu applies to",
+    menu = models.ForeignKey(Menu, on_delete=models.CASCADE, related_name="days")
+    day = models.PositiveSmallIntegerField(
+        choices=WEEKDAYS, validators=[MinValueValidator(1), MaxValueValidator(7)]
     )
 
-    def __str__(self):
-        days = ", ".join(str(d) for d in self.week_days)
-        return f"{self.restaurant.name} ({days})"
+    class Meta:
+        unique_together = ("menu", "day")
+
+    @property
+    def day_name(self):
+        return dict(self.WEEKDAYS).get(self.day)
