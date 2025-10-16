@@ -1,3 +1,4 @@
+from drf_spectacular.utils import extend_schema
 from rest_framework.viewsets import ModelViewSet
 
 from restaurants.api.serializers.restaurant import (
@@ -7,6 +8,7 @@ from restaurants.api.serializers.restaurant import (
 from restaurants.models import Restaurant
 
 
+@extend_schema(tags=["Restaurants"])
 class RestaurantViewSet(ModelViewSet):
     queryset = Restaurant.objects.all()
 
