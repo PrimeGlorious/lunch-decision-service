@@ -13,3 +13,9 @@ class DishReadSerializer(serializers.ModelSerializer):
     class Meta:
         model = Dish
         fields = ("id", "name", "description")
+
+
+class DishNameSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Dish
+        fields = ("id", "name")

@@ -1,6 +1,8 @@
 from rest_framework.fields import SerializerMethodField
 from rest_framework.serializers import ModelSerializer
 
+from restaurants.api.serializers.dish import DishNameSerializer
+from restaurants.api.serializers.restaurant import RestaurantNameSerializer
 from restaurants.models import Menu
 from restaurants.models.menu import MenuDay
 
@@ -48,7 +50,9 @@ class MenuSerializer(ModelSerializer):
 
 
 class MenuReadSerializer(ModelSerializer):
-    day_names = SerializerMethodField(read_only=True)
+    days = SerializerMethodField(read_only=True)
+    dishes = DishNameSerializer(many=True, read_only=True)
+    restaurant = RestaurantNameSerializer(read_only=True)
 
     class Meta:
         model = Menu
@@ -57,8 +61,8 @@ class MenuReadSerializer(ModelSerializer):
             "name",
             "restaurant",
             "dishes",
-            "day_names",
+            "days",
         )
 
-    def get_day_names(self, obj):
+    def get_days(self, obj):
         return [d.day_name for d in obj.days.all()]
